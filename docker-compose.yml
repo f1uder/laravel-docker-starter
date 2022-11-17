@@ -1,0 +1,66 @@
+version: '3'
+
+#Docker Networks
+networks:
+  laravel:
+    driver: bridge
+
+volumes:
+  dbdata:
+    driver: local
+
+# Xdebug
+#https://www.youtube.com/watch?v=9MhHQJjMulk
+
+services:
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    volumes:
+      - ./:/var/www
+      - ./_docker/nginx/conf.d:/etc/nginx/conf.d
+    ports:
+      - "80:80"
+      - "443:443"
+      - '${VITE_PORT:-5173}:${VITE_PORT:-5173}'
+    depends_on:
+      - app
+    networks:
+      - laravel
+
+  app:
+    build:
+      context: ./
+      dockerfile: _docker/app/DockerFile
+      args:
+        NODE_VERSION: "16"
+        user: fluder
+        uid: 1000
+    container_name: app
+    restart: unless-stopped
+    working_dir: /var/www/
+    tty: true
+    volumes:
+      - ./:/var/www
+    depends_on:
+      - db
+    networks:
+      - laravel
+
+  db:
+    image: mysql:5.7
+    container_name: db
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - dbdata:/var/lib/mysql
+      - ./_docker/mysql/my.cnf:/etc/mysql/my.cnf
+    networks:
+      - laravel
