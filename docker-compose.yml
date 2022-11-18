@@ -46,7 +46,7 @@ services:
       PHP_IDE_CONFIG: "serverName=PhpServerApp"
     volumes:
       - ./:/var/www
-      - - ./_docker/app/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
+      - ./_docker/app/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
     depends_on:
       - db
     networks:
