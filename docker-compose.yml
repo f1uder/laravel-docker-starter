@@ -40,8 +40,13 @@ services:
     restart: unless-stopped
     working_dir: /var/www/
     tty: true
+    environment:
+      # XDEBUG: disabled
+      XDEBUG_CONFIG: "remote_host=127.0.0.1 remote_enable=0"
+      PHP_IDE_CONFIG: "serverName=PhpServerApp"
     volumes:
       - ./:/var/www
+      - - ./_docker/app/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
     depends_on:
       - db
     networks:
